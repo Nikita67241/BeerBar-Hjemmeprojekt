@@ -22,5 +22,23 @@
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
+
+        public static bool DoesBeerExists(string filePath, string beerName, BeerType beerType)
+        {
+
+            if (File.Exists(filePath))
+            {
+                string[] existingBeers = File.ReadAllLines(filePath);
+                return existingBeers.Any(line =>
+                {
+                    string[] parts = line.Split(" - ");
+                    return parts.Length > 1 &&
+                    parts[0].Equals(beerName, StringComparison.OrdinalIgnoreCase) &&
+                    parts[1].Equals(beerType.ToString(), StringComparison.OrdinalIgnoreCase);
+                });
+            }
+            return false;
+        }
     }
+
 }

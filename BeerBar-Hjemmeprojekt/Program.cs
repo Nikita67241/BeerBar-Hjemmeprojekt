@@ -91,7 +91,7 @@
             }
 
 
-            //Console.WriteLine("to view all beers in menu...
+
             //make a writer.read all lines in the file to show all beers or/and make a funktion to lookup a beer by name or all beers by tap...");
 
             //i want to make it so i cant add a beer that already exists or that if i add a beer that already exists it will overide it not create a new  done!! men spørg underviser om extra forklaring. eller venner.

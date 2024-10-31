@@ -6,6 +6,7 @@ namespace BeerBarUnitTests
         [TestMethod]
         public void TestMethod1()
         {
+
         }
     }
 }

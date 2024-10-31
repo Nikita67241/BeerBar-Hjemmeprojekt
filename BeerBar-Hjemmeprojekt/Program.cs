@@ -7,68 +7,88 @@
             string filePath = "beerMenu.txt";
             BeerRepository beerRepository = new BeerRepository();
             BeerController beerController = new BeerController(beerRepository);
-            Console.WriteLine("to create a new beer in you menu type the beer name");
-            string beerName = Console.ReadLine();
-            try
+            BeerExistsChecker beerExistsChecker = new BeerExistsChecker(beerController);
+
+            bool running = true;
+            int menuChoise;
+            while (running == true)
             {
-                Console.WriteLine("are you selling the beer in Bottle, on Tap or in Tin. enter Tap,Bottle or Tin");
-                string beerType = Console.ReadLine();
-                beerType = beerType.ToLower();
+                Console.Clear();
+                Console.WriteLine("press 1 to add new beer");
+                Console.WriteLine("press 2 to see all beers");
 
-                bool beerExists = false;
-                if (File.Exists(filePath))
+                menuChoise = int.Parse(Console.ReadLine());
+                if (menuChoise == 1)
                 {
-                    string[] existingBeers = File.ReadAllLines(filePath);
-                    beerExists = existingBeers.Any(line =>
+                    Console.Clear();
+                    try
                     {
-                        string[] parts = line.Split(" - ");
-                        return parts.Length > 1 && parts[0].Equals(beerName, StringComparison.OrdinalIgnoreCase) && parts[1].Equals(beerType, StringComparison.OrdinalIgnoreCase);
-                    });
+                        Console.WriteLine("to create a new beer in you menu type the beer name");
+                        string beerName = Console.ReadLine();
+
+                        beerName = beerName.ToLower();
+
+                        Console.WriteLine("are you selling the beer in Bottle, on Tap or in Tin. enter Tap,Bottle or Tin");
+                        string beerType = Console.ReadLine();
+
+                        beerType.ToLower();
+
+                        string resultMessage = beerExistsChecker.CheckAndCreateBeer(filePath, beerName, beerType);
+                        Console.WriteLine(resultMessage);
+
+                    }
+
+                    catch (Exception incorrectBeerType) { Console.WriteLine("Error: Please enter a valid beer type."); }
+
+
+
+                    // skriver nye øl ind i filen
+                    using (StreamWriter writer = new StreamWriter(filePath, true))
+                    {
+                        foreach (var beer in beerController.GetAllBeers())
+                        {
+                            writer.WriteLine($"{beer.Name} - {beer.Type} - Price: {beer.Price} DKK - Volume in cl {beer.Volume}");
+                            Console.WriteLine($"{beer.Name} - {beer.Type} - Price: {beer.Price} DKK - Volume in cl {beer.Volume}");
+
+                        }
+                    }
+                    Console.ReadLine();
                 }
-
-
-                if (beerExists)
-                { Console.WriteLine("Beer already exists and wont be added again"); }
-
-                else
+                else if (menuChoise == 2)
                 {
-                    if (beerType == "bottle")
+                    Console.Clear();
+                    string textFromFile;
+                    StreamReader sr = null;
+                    sr = new StreamReader(filePath);
+                    textFromFile = sr.ReadLine();
+
+                    try
                     {
-                        beerController.CreateBeer(beerName, BeerType.Bottle);
-                        Console.WriteLine("Beer added successfully!");
+
+                        while (textFromFile != null)
+                        {
+
+                            Console.WriteLine(textFromFile);
+                            textFromFile = sr.ReadLine();
+                        }
                     }
-                    else if (beerType == "tap")
+                    catch (FileNotFoundException fNF) { Console.WriteLine($"File not found: {fNF.Message}"); }
+
+                    catch (DirectoryNotFoundException dNF)
                     {
-                        beerController.CreateBeer(beerName, BeerType.Tap);
-                        Console.WriteLine("Beer added successfully!");
+                        Console.WriteLine($"Directory not found: {dNF.Message}");
                     }
-                    else if (beerType == "tin")
+
+                    catch (Exception ex)
+                    { Console.WriteLine($"there was an error: {ex.Message}"); }
+                    finally
                     {
-                        beerController.CreateBeer(beerName, BeerType.Tin);
-                        Console.WriteLine("Beer added successfully!");
+                        sr.Close();
+                        Console.ReadLine();
                     }
-                    else
-                    {
-                        Console.WriteLine("Error: Please enter a valid beer type.");
-                    }
+
                 }
             }
-            catch (Exception incorrectBeerType) { Console.WriteLine("Error: Please enter a valid beer type."); }
-
-
-
-
-
-            using (StreamWriter writer = new StreamWriter(filePath, true))
-            {
-                foreach (var beer in beerController.GetAllBeers())
-                {
-                    writer.WriteLine($"{beer.Name} - {beer.Type} - Price: {beer.Price} DKK - Volume in cl {beer.Volume}");
-                    Console.WriteLine($"{beer.Name} - {beer.Type} - Price: {beer.Price} DKK - Volume in cl {beer.Volume}");
-                }
-            }
-
-
 
 
             //Console.WriteLine("to view all beers in menu...
